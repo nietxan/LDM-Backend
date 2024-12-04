@@ -119,6 +119,10 @@ func login(c *gin.Context) {
 func main() {
 	r := gin.Default()
 
+	initDatabase()
+
+	gin.SetMode(gin.DebugMode)
+
 	r.POST("/register", register)
 	r.POST("/login", login)
 
