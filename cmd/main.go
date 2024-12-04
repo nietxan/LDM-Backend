@@ -3,10 +3,12 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -21,7 +23,7 @@ type User struct {
 
 var (
 	db           *gorm.DB
-	jwtSecretKey = "PROD"
+	jwtSecretKey string
 )
 
 func initDatabase() error {
@@ -34,6 +36,20 @@ func initDatabase() error {
 	if err := db.AutoMigrate(&User{}); err != nil {
 		return err
 	}
+	return nil
+}
+
+func initEnv() error {
+	if os.Getenv("env") == "TEST" {
+		os.Setenv("JWT_SECRET", "TESTING")
+	} else {
+		err := godotenv.Load(".env")
+		if err != nil {
+			return err
+		}
+	}
+
+	jwtSecretKey = os.Getenv("JWT_SECRET")
 	return nil
 }
 
@@ -120,17 +136,16 @@ func main() {
 	r := gin.Default()
 
 	var err error
+
 	err = initDatabase()
 	if err != nil {
 		log.Fatal("Error loading database:", err)
 	}
-
-//	err = godotenv.Load(".env")
-//	if err != nil {
-//		log.Fatal("Error loading .env file")
-//	}
-
-	gin.SetMode(gin.DebugMode)
+	
+	err = initEnv()
+	if err != nil {
+		log.Fatal("Error loading environmental variables:", err)
+	}
 	
 	r.POST("/register", register)
 	r.POST("/login", login)

@@ -10,5 +10,7 @@ COPY . .
 
 RUN go build -v -o app ./cmd
 
+ENV env=TEST
+
 CMD ["./app"]
 
