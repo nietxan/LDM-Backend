@@ -1,4 +1,7 @@
 
 # air build
-
 tmp/
+
+.env
+
+users.db

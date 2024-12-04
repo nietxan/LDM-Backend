@@ -1,16 +1,18 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"os"
-	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -22,19 +24,20 @@ type User struct {
 
 var (
 	db           *gorm.DB
-	jwtSecretKey = os.Getenv("JWT_SECRET")
+	jwtSecretKey string
 )
 
-func initDatabase() {
+func initDatabase() error {
 	var err error
+
 	db, err = gorm.Open(sqlite.Open("users.db"), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect to the database:", err)
+		return err
 	}
-
 	if err := db.AutoMigrate(&User{}); err != nil {
-		log.Fatal("Failed to migrate database:", err)
+		return err
 	}
+	return nil
 }
 
 func generateToken(userID uint) (string, error) {
@@ -119,10 +122,21 @@ func login(c *gin.Context) {
 func main() {
 	r := gin.Default()
 
-	initDatabase()
+	var err error
+	err = initDatabase()
+	if err != nil {
+		log.Fatal("Error loading database:", err)
+	}
+
+	err = godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	jwtSecretKey = os.Getenv("JWT_SECRET")
+	fmt.Println(jwtSecretKey)
 
 	gin.SetMode(gin.DebugMode)
-
+	
 	r.POST("/register", register)
 	r.POST("/login", login)
 
