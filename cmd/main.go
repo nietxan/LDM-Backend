@@ -24,7 +24,7 @@ type User struct {
 
 var (
 	db           *gorm.DB
-	jwtSecretKey string
+	jwtSecretKey = "PROD"
 )
 
 func initDatabase() error {
@@ -128,12 +128,10 @@ func main() {
 		log.Fatal("Error loading database:", err)
 	}
 
-	err = godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-	jwtSecretKey = os.Getenv("JWT_SECRET")
-	fmt.Println(jwtSecretKey)
+//	err = godotenv.Load(".env")
+//	if err != nil {
+//		log.Fatal("Error loading .env file")
+//	}
 
 	gin.SetMode(gin.DebugMode)
 	
