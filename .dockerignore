@@ -1,0 +1,6 @@
+.git
+*.log
+.air.toml
+.gitignore
+README.md
+Dockerfile
