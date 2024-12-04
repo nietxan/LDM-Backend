@@ -1,4 +1,4 @@
-FROM golang:1.23 AS builder
+FROM golang:1.23
 
 WORKDIR /app
 
@@ -8,16 +8,7 @@ RUN go mod download && go mod verify
 
 COPY . .
 
-RUN go build -v -o main ./cmd
+RUN go build -v -o /usr/local/bin/app ./cmd
 
-FROM alpine:latest
+CMD ["app"]
 
-RUN apk --no-cache add ca-certificates
-
-WORKDIR /root/
-
-COPY --from=builder /app/main .
-
-EXPOSE 8080
-
-CMD ["./main"]
