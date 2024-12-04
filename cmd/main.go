@@ -98,7 +98,7 @@ func register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"token": token})
+	c.JSON(http.StatusCreated, gin.H{"token": token, "name": user.Name, "email": user.Email})
 }
 
 func login(c *gin.Context) {
@@ -129,7 +129,7 @@ func login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, gin.H{"token": token, "name": user.Name, "email": user.Email})
 }
 
 func main() {
