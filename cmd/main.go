@@ -33,6 +33,7 @@ func main() {
 	
 	r.POST("/singup", web.SingUp)
 	r.POST("/singin", web.SingIn)
+	r.GET("/update", web.OrderUpdateSocket)
 
 	if err := r.Run(); err != nil {
 		log.Fatal("Server failed to start:", err)
