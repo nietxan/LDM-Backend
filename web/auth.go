@@ -9,13 +9,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-)
-
-var (
-	db *gorm.DB
-	jwtSecret string
 )
 
 func generateToken(userID uint) (string, error) {
@@ -28,20 +21,6 @@ func generateToken(userID uint) (string, error) {
 }
 
 
-func InitDatabase() error {
-	var err error
-
-	db, err = gorm.Open(sqlite.Open("ldm.db"), &gorm.Config{})
-	if err != nil {
-		return err
-	}
-	if err := db.AutoMigrate(&User{}, &Order{}); err != nil {
-		return err
-	}
-	
-	return nil
-}
-
 func InitEnv() error {
 	if os.Getenv("env") == "TEST" {
 		os.Setenv("JWT_SECRET", "TESTING")
@@ -52,7 +31,6 @@ func InitEnv() error {
 		}
 	}
 
-	jwtSecret = os.Getenv("JWT_SECRET")
 	return nil
 }
 
@@ -69,7 +47,7 @@ func SingUp(c *gin.Context) {
 	}
 
 	var existingUser User
-	if err := db.Where("email = ?", input.Email).First(&existingUser).Error; err == nil {
+	if err := DB.Where("email = ?", input.Email).First(&existingUser).Error; err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "User already exists"})
 		return
 	}
@@ -81,7 +59,7 @@ func SingUp(c *gin.Context) {
 	}
 
 	user := User{Name: input.Name, Email: input.Email, Password: string(hashedPassword)}
-	if err := db.Create(&user).Error; err != nil {
+	if err := DB.Create(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error creating user"})
 		return
 	}
@@ -107,7 +85,7 @@ func SingIn(c *gin.Context) {
 	}
 
 	var user User
-	if err := db.Where("email = ?", input.Email).First(&user).Error; err != nil {
+	if err := DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "User not found"})
 		return
 	}
